@@ -39,6 +39,7 @@ class AutosAnimados {
             puntosAutos.push([vecR[0] + 1.9, vecR[1], (vecR[2])]);
         }
         var curvaAutos = new CuadraticBSpline(puntosAutos.length, 0.1, true);
+        curvaAutos.enforceNegativeX = true;
 
         curvaAutos.setControlPoints(puntosAutos);
         curvaAutos.calculateArrays();
@@ -123,23 +124,23 @@ class AutosAnimados {
     }
 
 
-    updateAutos(){
+    updateAutos() {
 
         var largoCurva = 55.0;
 
         this.count += 0.5;
         this.rotacion += 0.1;
 
-        if (this.count > 1.15){
+        if (this.count > 1.15) {
             this.count = 0.5;
         }
         //0.8 es a la izq en eje x
 
-        if(this.rotacion>2.0){
+        if (this.rotacion > 2.0) {
             this.rotacion = 0.0;
         }
 
-        for (var i = 0; i < this.autos1.length; i++){
+        for (var i = 0; i < this.autos1.length; i++) {
 
             var auto1 = this.autos1[i];
             var auto2 = this.autos2[i];
@@ -158,19 +159,19 @@ class AutosAnimados {
 
             var random = Math.random() * 5;
 
-            if(this.posAutos1[i] < 5.0){
+            if (this.posAutos1[i] < 5.0) {
                 this.posAutos1[i] = largoCurva;
             }
 
-            if(this.posAutos2[i] <5.0){
+            if (this.posAutos2[i] < 5.0) {
                 this.posAutos2[i] = largoCurva - Math.floor(random);
             }
 
-            if(this.posAutos3[i] > largoCurva){
+            if (this.posAutos3[i] > largoCurva) {
                 this.posAutos3[i] = 5.0;
             }
 
-            if(this.posAutos4[i] > largoCurva){
+            if (this.posAutos4[i] > largoCurva) {
                 this.posAutos4[i] = 5.0 + Math.floor(random);
             }
 
@@ -195,25 +196,25 @@ class AutosAnimados {
             /*ACTUALIZACION AUTO 1*/
             rueda1[0].resetMatrix();
             rueda1[0].translate(2.3, 1.0, 0.0);
-            rueda1[0].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda1[0].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda1[0].translate(-2.3, -1.0, 0.0);
             rueda1[0].translate(0.0, 0.0, -0.2);
 
             rueda1[1].resetMatrix();
             rueda1[1].translate(2.3, 1.0, 0.0);
-            rueda1[1].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda1[1].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda1[1].translate(-2.3, -1.0, 0.0);
             rueda1[1].translate(0.0, 0.0, 3.7);
 
             rueda1[2].resetMatrix();
             rueda1[2].translate(9.1, 1.0, 0.0);
-            rueda1[2].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda1[2].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda1[2].translate(-9.1, -1.0, 0.0);
             rueda1[2].translate(0.0, 0.0, -0.2);
 
             rueda1[3].resetMatrix();
             rueda1[3].translate(9.1, 1.0, 0.0);
-            rueda1[3].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda1[3].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda1[3].translate(-9.1, -1.0, 0.0);
             rueda1[3].translate(0.0, 0.0, 3.7);
 
@@ -227,25 +228,25 @@ class AutosAnimados {
             /*ACTUALIZACION AUTO 2*/
             rueda2[0].resetMatrix();
             rueda2[0].translate(2.3, 1.0, 0.0);
-            rueda2[0].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda2[0].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda2[0].translate(-2.3, -1.0, 0.0);
             rueda2[0].translate(0.0, 0.0, -0.2);
 
             rueda2[1].resetMatrix();
             rueda2[1].translate(2.3, 1.0, 0.0);
-            rueda2[1].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda2[1].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda2[1].translate(-2.3, -1.0, 0.0);
             rueda2[1].translate(0.0, 0.0, 3.7);
 
             rueda2[2].resetMatrix();
             rueda2[2].translate(9.1, 1.0, 0.0);
-            rueda2[2].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda2[2].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda2[2].translate(-9.1, -1.0, 0.0);
             rueda2[2].translate(0.0, 0.0, -0.2);
 
             rueda2[3].resetMatrix();
             rueda2[3].translate(9.1, 1.0, 0.0);
-            rueda2[3].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda2[3].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda2[3].translate(-9.1, -1.0, 0.0);
             rueda2[3].translate(0.0, 0.0, 3.7);
 
@@ -259,25 +260,25 @@ class AutosAnimados {
             /*ACTUALIZACION AUTO 3*/
             rueda3[0].resetMatrix();
             rueda3[0].translate(2.3, 1.0, 0.0);
-            rueda3[0].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda3[0].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda3[0].translate(-2.3, -1.0, 0.0);
             rueda3[0].translate(0.0, 0.0, -0.2);
 
             rueda3[1].resetMatrix();
             rueda3[1].translate(2.3, 1.0, 0.0);
-            rueda3[1].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda3[1].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda3[1].translate(-2.3, -1.0, 0.0);
             rueda3[1].translate(0.0, 0.0, 3.7);
 
             rueda3[2].resetMatrix();
             rueda3[2].translate(9.1, 1.0, 0.0);
-            rueda3[2].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda3[2].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda3[2].translate(-9.1, -1.0, 0.0);
             rueda3[2].translate(0.0, 0.0, -0.2);
 
             rueda3[3].resetMatrix();
             rueda3[3].translate(9.1, 1.0, 0.0);
-            rueda3[3].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda3[3].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda3[3].translate(-9.1, -1.0, 0.0);
             rueda3[3].translate(0.0, 0.0, 3.7);
 
@@ -291,25 +292,25 @@ class AutosAnimados {
             /*ACTUALIZACION AUTO 4*/
             rueda4[0].resetMatrix();
             rueda4[0].translate(2.3, 1.0, 0.0);
-            rueda4[0].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda4[0].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda4[0].translate(-2.3, -1.0, 0.0);
             rueda4[0].translate(0.0, 0.0, -0.2);
 
             rueda4[1].resetMatrix();
             rueda4[1].translate(2.3, 1.0, 0.0);
-            rueda4[1].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda4[1].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda4[1].translate(-2.3, -1.0, 0.0);
             rueda4[1].translate(0.0, 0.0, 3.7);
 
             rueda4[2].resetMatrix();
             rueda4[2].translate(9.1, 1.0, 0.0);
-            rueda4[2].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda4[2].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda4[2].translate(-9.1, -1.0, 0.0);
             rueda4[2].translate(0.0, 0.0, -0.2);
 
             rueda4[3].resetMatrix();
             rueda4[3].translate(9.1, 1.0, 0.0);
-            rueda4[3].rotate(-angulo , 0.0, 0.0, 1.0);//
+            rueda4[3].rotate(-angulo, 0.0, 0.0, 1.0);//
             rueda4[3].translate(-9.1, -1.0, 0.0);
             rueda4[3].translate(0.0, 0.0, 3.7);
 
