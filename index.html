@@ -23,6 +23,7 @@
 
     <script type="text/javascript" src="gl-matrix.js"></script>
     <script type="text/javascript" src="webgl-utils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script id="shader-fs-colored-obj" type="x-shader/x-fragment">
     precision highp float;
@@ -1950,40 +1951,60 @@
 
         function rellenarGrilla() {
             var n = 4;
-
-
             var anchoCalle = 3.0;
-            var largoCalle = 20.0;
             var manzana = 20.0;
+            
+            // Generate basic scene
             escena = factory.createEscene((n - 1) * anchoCalle + (n) * manzana, true);
+            
+            // 1. Reset Node Tracking
+            activeNodes = [];
 
-            this.crearRuta(escena);
-            // this.rellenarCalles(anchoCalle, largoCalle, manzana, escena, factory);
-            // this.rellenarManzanas(anchoCalle, manzana, escena, factory);
+            // 2. Discover connections and build road segments (internally clips ends)
+            this.construirCaminos(escena);
 
-            //ajusto la posicion de la escena para mejor visualizacion
+            // 3. Generate the unified intersection hub meshes
+            crearIntersecciones(escena);
+
+            // Positioning for visualization
             escena.translate(-22.0, 0.0, -20.0);
             escena.scale(0.5, 0.5, 0.5);
         }
 
-        function crearRuta(escena) {
+        function construirCaminos(escena) {
             for (var i = 0; i < todasLasRutas.length; i++) {
-                var pdc = todasLasRutas[i];
-                var puntos_ruta = [];
-                var factorH = 1;
-                var factorW = 1;
-                // Center the coordinates by subtracting 150 and adding ground offset (half of 89 divided by 0.32 road scale)
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[0][0] - 150) + 140, (pdc[0][1] - 150) + 140));
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[1][0] - 150) + 140, (pdc[1][1] - 150) + 140));
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[2][0] - 150) + 140, (pdc[2][1] - 150) + 140));
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[3][0] - 150) + 140, (pdc[3][1] - 150) + 140));
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[4][0] - 150) + 140, (pdc[4][1] - 150) + 140));
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[5][0] - 150) + 140, (pdc[5][1] - 150) + 140));
-                puntos_ruta.push(vec3.fromValues(0.0, (pdc[6][0] - 150) + 140, (pdc[6][1] - 150) + 140));
-
-                ruta = factory.createRuta(puntos_ruta);
-                escena.add(ruta);
+                this.crearSegmento(escena, todasLasRutas[i]);
             }
+        }
+
+        function crearSegmento(escena, puntos) {
+            var startPt = new THREE.Vector2(puntos[0][0], puntos[0][1]);
+            var endPt = new THREE.Vector2(puntos[puntos.length - 1][0], puntos[puntos.length - 1][1]);
+
+            var findOrCreateNode = (pos) => {
+                var existing = activeNodes.find(n => n.position.distanceTo(pos) < 5);
+                if (existing) return existing;
+                var newNode = new Node(pos);
+                activeNodes.push(newNode);
+                return newNode;
+            };
+
+            var startNode = findOrCreateNode(startPt);
+            var endNode = findOrCreateNode(endPt);
+
+            var segment = new RoadSegment(puntos, startNode, endNode);
+            startNode.addConnection(segment);
+            endNode.addConnection(segment);
+
+            // Clipping for 3D construction
+            var clippedPoints = segment.generateClippedPoints(8.0);
+            var vector_puntos = [];
+            for (var i = 0; i < clippedPoints.length; i++) {
+                vector_puntos.push(vec3.fromValues(0.0, (clippedPoints[i][0] - 150) + 140, (clippedPoints[i][1] - 150) + 140));
+            }
+
+            var ruta = factory.createRuta(vector_puntos);
+            escena.add(ruta);
         }
 
         function rellenarCalles(anchoCalle, largoCalle, manzana, escena, factory) {
@@ -2241,7 +2262,7 @@
         height: 500px;
         background-color: #000;
         border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         margin-bottom: 20px;
     }
 
@@ -2249,7 +2270,7 @@
         cursor: crosshair;
         background-color: white;
         border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     h1 {
@@ -2323,48 +2344,68 @@
 
 <script src="jquery-2.1.4.min.js"></script>
 
-<body id="my_body" onload="Load();" style="background-color:#f0f2f5; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif;">
+<body id="my_body" onload="Load();"
+    style="background-color:#f0f2f5; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif;">
 
     <div style="display: flex; height: 100vh;">
         <!-- Sidebar -->
-        <div style="width: 300px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.05);">
+        <div
+            style="width: 300px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.05);">
             <h1 style="font-size: 24px; color: #333; margin-bottom: 5px;">Road Generator</h1>
             <h2 style="font-size: 14px; color: #777; margin-bottom: 30px; font-weight: normal;">Marcos Schapira</h2>
 
             <div style="margin-bottom: 30px;">
-                <p style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Road Tools</p>
-                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #63a1aa; color: white;" onclick="AddLine();"><span>Add Line</span></button>
-                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0; background: #555; color: white;" onclick="Load();"><span>Refresh Preview</span></button>
+                <p
+                    style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                    Road Tools</p>
+                <button class="button"
+                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #63a1aa; color: white;"
+                    onclick="AddLine();"><span>Add Line</span></button>
+                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0; background: #555; color: white;"
+                    onclick="Load();"><span>Refresh Preview</span></button>
             </div>
 
             <div style="margin-bottom: 30px;">
-                <p style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Templates</p>
-                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #eee; color: #333; font-size: 16px;" onclick="loadSimpang3();"><span>Simpang 3</span></button>
-                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #eee; color: #333; font-size: 16px;" onclick="loadSimpang4();"><span>Simpang 4</span></button>
-                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0; background: #eee; color: #333; font-size: 16px;" onclick="loadSimpang5();"><span>Simpang 5</span></button>
+                <p
+                    style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                    Templates</p>
+                <button class="button"
+                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #eee; color: #333; font-size: 16px;"
+                    onclick="loadSimpang3();"><span>Simpang 3</span></button>
+                <button class="button"
+                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #eee; color: #333; font-size: 16px;"
+                    onclick="loadSimpang4();"><span>Simpang 4</span></button>
+                <button class="button"
+                    style="width: 100%; top: 0; left: 0; margin: 0; background: #eee; color: #333; font-size: 16px;"
+                    onclick="loadSimpang5();"><span>Simpang 5</span></button>
             </div>
 
             <div style="margin-top: auto;">
-                <p style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Car Speed</p>
+                <p
+                    style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
+                    Car Speed</p>
                 <input type="range" name="points" id="points" value="10" min="0" max="10" style="width: 100%;">
             </div>
         </div>
 
         <!-- Main Workspace -->
-        <div style="flex: 1; padding: 30px; display: flex; flex-direction: column; align-items: center; overflow-y: auto;">
+        <div
+            style="flex: 1; padding: 30px; display: flex; flex-direction: column; align-items: center; overflow-y: auto;">
             <canvas id="my_canvas" width="900" height="500"></canvas>
-            
+
             <div style="display: flex; gap: 30px; align-items: flex-start;">
                 <canvas id="myCanvas" width="300" height="300"></canvas>
-                
-                <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; width: 400px;">
+
+                <div
+                    style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; width: 400px;">
                     <p style="font-weight: bold; margin-bottom: 10px; color: #333;">Controls Guide</p>
                     <div style="font-size: 13px; color: #666; line-height: 1.6;">
                         <p><b>Cameras:</b> 1 (Street) | 2 (Orbital) | 3 (Highway)</p>
                         <p><b>Movement:</b> W A S D / Zoom: + -</p>
                         <p><b>Elevation:</b> Q E</p>
                         <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
-                        <p><b>2D Editor:</b> Drag the orange circles to reshape roads. The blue line shows the actual path.</p>
+                        <p><b>2D Editor:</b> Drag the orange circles to reshape roads. The blue line shows the actual
+                            path.</p>
                     </div>
                 </div>
             </div>
@@ -2380,8 +2421,8 @@
         function loadSimpang3() {
             currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
-                [[50, 150], [100, 150], [150, 150], [200, 150], [250, 150], [275, 150], [300, 150]], /* Horizontal */
-                [[150, 300], [150, 250], [150, 200], [150, 150], [150, 150], [150, 150], [150, 150]]  /* Vertical Bottom */
+                [[-25, 150], [50, 150], [100, 150], [150, 150], [200, 150], [275, 150], [325, 150]], /* Horizontal Center */
+                [[150, 325], [150, 275], [150, 225], [150, 150], [150, 150], [150, 150], [150, 150]]  /* Vertical Bottom */
             ];
             activeLineIndex = 0;
             puntosDeControl = todasLasRutas[activeLineIndex];
@@ -2392,8 +2433,8 @@
         function loadSimpang4() {
             currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
-                [[50, 150], [100, 150], [150, 150], [200, 150], [250, 150], [275, 150], [300, 150]], /* Horizontal */
-                [[150, 0], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 300]]   /* Vertical Full */
+                [[-25, 150], [50, 150], [100, 150], [150, 150], [200, 150], [275, 150], [325, 150]], /* Horizontal Center */
+                [[150, -25], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 325]]   /* Vertical Full */
             ];
             activeLineIndex = 0;
             puntosDeControl = todasLasRutas[activeLineIndex];
@@ -2404,9 +2445,9 @@
         function loadSimpang5() {
             currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
-                [[50, 150], [100, 150], [150, 150], [200, 150], [250, 150], [275, 150], [300, 150]], /* Horizontal */
-                [[150, 0], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 300]],  /* Vertical Full */
-                [[50, 250], [100, 200], [150, 150], [150, 150], [150, 150], [150, 150], [150, 150]]  /* Diagonal */
+                [[-25, 150], [50, 150], [100, 150], [150, 150], [200, 150], [275, 150], [325, 150]], /* Horizontal Center */
+                [[150, -25], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 325]],  /* Vertical Full */
+                [[-25, 325], [25, 275], [75, 225], [150, 150], [150, 150], [150, 150], [150, 150]]   /* Diagonal Down-Left */
             ];
             activeLineIndex = 0;
             puntosDeControl = todasLasRutas[activeLineIndex];
@@ -2470,14 +2511,14 @@
             // To connect the ends, we double the first and last points in the B-Spline logic
             var ptsDrawing = [p0, p0, p1, p2, p3, p4, p5, p6, p6];
 
-            var deltaU = 0.01; 
+            var deltaU = 0.01;
             ctx.beginPath();
             for (var count = 0; count < ptsDrawing.length; count = count + deltaU) {
                 var currentU = count * (ptsDrawing.length - 2) / (ptsDrawing.length - 1);
                 var control_points = [];
                 var aux = Math.floor(currentU);
                 var t = currentU - aux;
-                
+
                 if (currentU >= ptsDrawing.length - 2) {
                     aux = ptsDrawing.length - 3;
                     t = 1;
@@ -2662,6 +2703,113 @@
             animate();
             webGLStart();
         }
+
+        // --- SEAMLESS INTERSECTION CLASSES & LOGIC ---
+        class Node {
+            constructor(position) {
+                this.position = position; // THREE.Vector2
+                this.connections = []; // Array of RoadSegment
+            }
+            addConnection(segment) {
+                if (!this.connections.includes(segment)) this.connections.push(segment);
+            }
+        }
+
+        class RoadSegment {
+            constructor(rawPoints, startNode, endNode) {
+                this.rawPoints = rawPoints; // Array of [x, y]
+                this.startNode = startNode;
+                this.endNode = endNode;
+            }
+
+            getTangentAt(node) {
+                var pts = this.rawPoints;
+                if (node === this.startNode) {
+                    var p0 = new THREE.Vector2(pts[0][0], pts[0][1]);
+                    var p1 = new THREE.Vector2(pts[1][0], pts[1][1]);
+                    return p1.clone().sub(p0).normalize();
+                } else {
+                    var pN = new THREE.Vector2(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+                    var pN1 = new THREE.Vector2(pts[pts.length - 2][0], pts[pts.length - 2][1]);
+                    return pN.clone().sub(pN1).normalize();
+                }
+            }
+
+            generateClippedPoints(dist) {
+                var pts = JSON.parse(JSON.stringify(this.rawPoints));
+                if (this.startNode.connections.length > 1) {
+                    var p0 = new THREE.Vector2(pts[0][0], pts[0][1]);
+                    var p1 = new THREE.Vector2(pts[1][0], pts[1][1]);
+                    var dir = p1.clone().sub(p0).normalize().multiplyScalar(dist);
+                    var newP0 = p0.clone().add(dir);
+                    pts[0] = [newP0.x, newP0.y];
+                    pts[1] = [newP0.x, newP0.y];
+                }
+                if (this.endNode.connections.length > 1) {
+                    var pN = new THREE.Vector2(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+                    var pN1 = new THREE.Vector2(pts[pts.length - 2][0], pts[pts.length - 2][1]);
+                    var dir = pN1.clone().sub(pN).normalize().multiplyScalar(dist);
+                    var newPN = pN.clone().add(dir);
+                    pts[pts.length - 1] = [newPN.x, newPN.y];
+                    pts[pts.length - 2] = [newPN.x, newPN.y];
+                }
+                return pts;
+            }
+        }
+
+        function createIntersectionShape(node, roadWidth = 12.0) {
+            if (node.connections.length < 2) return null;
+            var angles = node.connections.map(seg => {
+                var tan = seg.getTangentAt(node);
+                return { segment: seg, angle: Math.atan2(tan.y, tan.x), tangent: tan };
+            });
+            angles.sort((a, b) => a.angle - b.angle);
+
+            var shape = new THREE.Shape();
+            var roadHalfWidth = roadWidth / 2;
+            var corners = [];
+
+            for (var i = 0; i < angles.length; i++) {
+                var curr = angles[i];
+                var next = angles[(i + 1) % angles.length];
+                var normalCurr = new THREE.Vector2(-curr.tangent.y, curr.tangent.x).multiplyScalar(roadHalfWidth);
+                var normalNext = new THREE.Vector2(-next.tangent.y, next.tangent.x).multiplyScalar(-roadHalfWidth);
+                var p1 = node.position.clone().add(curr.tangent.clone().multiplyScalar(8)).add(normalCurr);
+                var p2 = node.position.clone().add(next.tangent.clone().multiplyScalar(8)).add(normalNext);
+                corners.push(p1); corners.push(p2);
+            }
+
+            var off = (p) => { return p - 150 + 140; };
+
+            shape.moveTo(off(corners[0].x), off(corners[0].y));
+            for (var i = 0; i < corners.length; i += 2) {
+                var c1 = corners[i];
+                var c2 = corners[(i + 1) % corners.length];
+                shape.lineTo(off(c1.x), off(c1.y));
+                shape.quadraticCurveTo(off(node.position.x), off(node.position.y), off(c2.x), off(c2.y));
+            }
+            return shape;
+        }
+
+        function generateIntersectionMesh(node, escena) {
+            var shape = createIntersectionShape(node);
+            if (!shape) return;
+            var geometry = new THREE.ShapeGeometry(shape);
+            var factory = new ObjetosFactory();
+            var mesh = factory.createIntersectionFromThree(geometry);
+            escena.add(mesh);
+        }
+
+        function crearIntersecciones(escena) {
+            for (var i = 0; i < activeNodes.length; i++) {
+                var node = activeNodes[i];
+                if (node.connections.length > 1) {
+                    generateIntersectionMesh(node, escena);
+                }
+            }
+        }
+
+        var activeNodes = [];
     </script>
 
 </body>

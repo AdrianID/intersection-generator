@@ -389,7 +389,7 @@ class ObjetosFactory {
         pos.push(vec3.fromValues(0.0, 0.0, x));
         pos.push(vec3.fromValues(x, 0, 0));
 
-        linea.calcularSuperficieBarrido("escena", 2, 2, arrayMatT, pos);
+        // linea.calcularSuperficieBarrido("escena", 2, 2, arrayMatT, pos);
 
         if (bool) {
             var sky = this.createSky();
