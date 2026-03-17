@@ -290,6 +290,7 @@ class ObjetosFactory {
 
     createIntersectionFromThree(geometry) {
         var intersection = new Objeto3D();
+        intersection.drawMode = 0x0004; // gl.TRIANGLES
 
         // Extract data from Three.js BufferGeometry
         var positions = geometry.attributes.position.array;
@@ -305,13 +306,32 @@ class ObjetosFactory {
 
         var buffcalc = new BufferCalculator(0, 0);
         buffcalc.posBuffer = [];
+        buffcalc.textureBuffer1 = [];
+        
+        // Find bounding box for UV mapping (centered at 140 offset, size ~30-40)
+        // We use roughly the 140 coordinate as center
+        var uvMin = 140 - 20; 
+        var uvMax = 140 + 20;
+        var uvSize = uvMax - uvMin;
+
         // Map to project coordinate system: X is height/offset, Y and Z are the plan plane
         for (var i = 0; i < positions.length; i += 3) {
-            buffcalc.posBuffer.push(0.02);         // X (Height/Offset) - slightly higher to avoid z-fighting
-            buffcalc.posBuffer.push(positions[i]); // Y (Plan X)
-            buffcalc.posBuffer.push(positions[i + 1]); // Z (Plan Y)
+            var py = positions[i];
+            var pz = positions[i + 1];
+            
+            buffcalc.posBuffer.push(0.02);         // X (Height/Offset)
+            buffcalc.posBuffer.push(py);           // Y (Plan X)
+            buffcalc.posBuffer.push(pz);           // Z (Plan Y)
+
+            // UV mapping centered on our junction
+            // cruce.jpg is a square texture with zebra crossings on the edges
+            var u = (py - uvMin) / uvSize;
+            var v = (pz - uvMin) / uvSize;
+            buffcalc.textureBuffer1.push(u);
+            buffcalc.textureBuffer1.push(v);
         }
         buffcalc.indexBuffer = Array.from(indices);
+        buffcalc.setTextures(1);
 
         var normals = [];
         var tangents = [];
@@ -323,8 +343,6 @@ class ObjetosFactory {
         buffcalc.tangentBuffer = tangents;
 
         intersection.setBufferCreator(buffcalc);
-        // We need to set a flag or custom draw mode for TRIANGLES if necessary
-        // In Objeto3D.js, we might need to handle draw mode if it only does TRIANGLE_STRIP
         intersection.build();
         intersection.setType("esquina", 1.0);
         intersection.useTangent = true;

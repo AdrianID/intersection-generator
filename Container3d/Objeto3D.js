@@ -55,6 +55,7 @@ class Objeto3D extends Container3D {
         this.id = null;
         this.maxY = null;
         this.cantEdificios = null;
+        this.drawMode = 0x0005; // Default: gl.TRIANGLE_STRIP (0x0005)
         this.setShaderProgram(shaderProgramColoredObject);
     }
 
@@ -591,7 +592,7 @@ class Objeto3D extends Container3D {
         //Draw
         //if(this.objectType != SKY) {
 
-        gl.drawElements(gl.TRIANGLE_STRIP, this.webglIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(this.drawMode, this.webglIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
         //}
     }
 

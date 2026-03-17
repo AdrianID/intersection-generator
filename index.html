@@ -1641,7 +1641,7 @@
 
             //se cargan las texturas de la esquina
             gl.useProgram(cityShader);
-            loadTexture("textures/road_4way.png", "esquina");
+            loadTexture("textures/cruce.jpg", "esquina");
 
             var location = gl.getUniformLocation(cityShader, "esquina");
             gl.uniform1i(location, 22);
@@ -2361,6 +2361,9 @@
                 <button class="button"
                     style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #63a1aa; color: white;"
                     onclick="AddLine();"><span>Add Line</span></button>
+                <button class="button"
+                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #e74c3c; color: white;"
+                    onclick="DeleteLine();"><span>Delete Line</span></button>
                 <button class="button" style="width: 100%; top: 0; left: 0; margin: 0; background: #555; color: white;"
                     onclick="Load();"><span>Refresh Preview</span></button>
             </div>
@@ -2462,6 +2465,18 @@
             for (var i = 0; i < lastTrack.length; i++) { newTrack.push([lastTrack[i][0] + 0, lastTrack[i][1] + 20]); }
             todasLasRutas.push(newTrack);
             activeLineIndex = todasLasRutas.length - 1;
+            puntosDeControl = todasLasRutas[activeLineIndex];
+            new_points = todasLasRutas[activeLineIndex];
+            Load();
+        }
+
+        function DeleteLine() {
+            if (todasLasRutas.length <= 1) {
+                alert("You must have at least one road segment!");
+                return;
+            }
+            todasLasRutas.splice(activeLineIndex, 1);
+            activeLineIndex = Math.max(0, activeLineIndex - 1);
             puntosDeControl = todasLasRutas[activeLineIndex];
             new_points = todasLasRutas[activeLineIndex];
             Load();
