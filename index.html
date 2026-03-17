@@ -1953,10 +1953,10 @@
             var n = 4;
             var anchoCalle = 3.0;
             var manzana = 20.0;
-            
+
             // Generate basic scene
             escena = factory.createEscene((n - 1) * anchoCalle + (n) * manzana, true);
-            
+
             // 1. Reset Node Tracking
             activeNodes = [];
 
@@ -2543,16 +2543,16 @@
             ctx.strokeStyle = handleColor;
             ctx.lineWidth = 2;
 
-            var drawHandle = function (p, isCenter) {
+            var drawHandle = function (p) {
                 ctx.beginPath();
-                ctx.arc(p[0], p[1], isCenter ? handleRadius + 2 : handleRadius, 0, 2 * Math.PI);
+                ctx.arc(p[0], p[1], handleRadius, 0, 2 * Math.PI);
                 ctx.stroke();
             };
 
             drawHandle(p0);
             drawHandle(p1);
             drawHandle(p2);
-            drawHandle(p3, true);
+            drawHandle(p3);
             drawHandle(p4);
             drawHandle(p5);
             drawHandle(p6);
@@ -2625,27 +2625,38 @@
                 var pos = $(c).offset();
                 var mouseX = e.pageX - pos.left;
                 var mouseY = e.pageY - pos.top;
-                var dx = mouseX - lastMouseX;
-                var dy = mouseY - lastMouseY;
-                lastMouseX = mouseX;
-                lastMouseY = mouseY;
+                
+                // Helper to check if a point is at the intersection center
+                var isPinned = (x, y) => Math.abs(x - 150) < 2 && Math.abs(y - 150) < 2;
 
                 if (p0) {
-                    new_points[0][0] = mouseX; new_points[0][1] = mouseY;
-                    new_points[1][0] = mouseX; new_points[1][1] = mouseY;
+                    if (!isPinned(new_points[0][0], new_points[0][1])) {
+                        new_points[0][0] = mouseX; new_points[0][1] = mouseY;
+                        new_points[1][0] = mouseX; new_points[1][1] = mouseY;
+                    }
                 } else if (p2) {
-                    new_points[2][0] = mouseX; new_points[2][1] = mouseY;
+                    if (!isPinned(new_points[2][0], new_points[2][1])) {
+                        new_points[2][0] = mouseX; new_points[2][1] = mouseY;
+                    }
                 } else if (p3) {
-                    for (var i = 0; i < new_points.length; i++) {
-                        new_points[i][0] += dx;
-                        new_points[i][1] += dy;
+                    // Change: only move p3 handle, don't shift the whole road
+                    // And prevent moving if it's the junction center
+                    if (!isPinned(new_points[3][0], new_points[3][1])) {
+                        new_points[3][0] = mouseX; new_points[3][1] = mouseY;
                     }
                 } else if (p4) {
-                    new_points[4][0] = mouseX; new_points[4][1] = mouseY;
+                    if (!isPinned(new_points[4][0], new_points[4][1])) {
+                        new_points[4][0] = mouseX; new_points[4][1] = mouseY;
+                    }
                 } else if (p6) {
-                    new_points[5][0] = mouseX; new_points[5][1] = mouseY;
-                    new_points[6][0] = mouseX; new_points[6][1] = mouseY;
+                    if (!isPinned(new_points[6][0], new_points[6][1])) {
+                        new_points[5][0] = mouseX; new_points[5][1] = mouseY;
+                        new_points[6][0] = mouseX; new_points[6][1] = mouseY;
+                    }
                 }
+
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
             }
 
             var mouseIsPressed = false;

@@ -1,18 +1,18 @@
 var VEL_MOV = 1.0;
 
-class CameraHandler{
+class CameraHandler {
 
-    constructor(){
+    constructor() {
 
         //maneja una matriz de vista global CameraMatrix
 
         //orbital o libre
         this.mode = null;
 
-        freeCam = new FreeCamera([0.0,-1.0,0.0]);
+        freeCam = new FreeCamera([0.0, -1.0, 0.0]);
         orbitCam = new OrbitCamera();
 
-        freeCamR = new FreeCamera([-23.0,-5.0,-15.0],0.1,1.2);
+        freeCamR = new FreeCamera([-23.0, -5.0, -15.0], 0.1, 1.2);
         mouse = new Mouse();
     }
     /* ------------------ METODOS COMPARTIDOS/SETTERS -----------------------------------------*/
@@ -27,13 +27,13 @@ class CameraHandler{
             //Solo trasladamos si agrandamos o achicamos el zoom
             var r = -orbitCam.getRadius();
             var vec_1 = vec3.create();
-            vec_1 = vec3.fromValues(0.0,0.0,r);
+            vec_1 = vec3.fromValues(0.0, 0.0, r);
             mat4.translate(CameraMatrix, CameraMatrix, vec_1);
 
             var p = orbitCam.getPhi();
             var vec_2 = vec3.create();
             vec_2 = vec3.fromValues(1.0, 0.0, 0.0);
-            mat4.rotate(CameraMatrix, CameraMatrix, p , vec_2);
+            mat4.rotate(CameraMatrix, CameraMatrix, p, vec_2);
 
             var t = orbitCam.getTheta();
             var vec_3 = vec3.create();
@@ -41,11 +41,11 @@ class CameraHandler{
             mat4.rotate(CameraMatrix, CameraMatrix, t, vec_3);
         }
 
-        if(this.mode == "free"){
+        if (this.mode == "free") {
 
-            mat4.scale(CameraMatrix, CameraMatrix, vec4.fromValues(0.5, 0.5, 1.0,1.0));
+            mat4.scale(CameraMatrix, CameraMatrix, vec4.fromValues(0.5, 0.5, 1.0, 1.0));
             var phi = freeCam.getPhi();
-            var vec_1 = vec3.fromValues(1.0,0.0,0.0);
+            var vec_1 = vec3.fromValues(1.0, 0.0, 0.0);
             mat4.rotate(CameraMatrix, CameraMatrix, phi, vec_1);
 
             var theta = freeCam.getTheta();
@@ -56,10 +56,10 @@ class CameraHandler{
             mat4.translate(CameraMatrix, CameraMatrix, pos);
         }
 
-        if(this.mode == "freeR"){
-            mat4.scale(CameraMatrix, CameraMatrix, vec4.fromValues(0.5, 0.5, 1.0,1.0));
+        if (this.mode == "freeR") {
+            mat4.scale(CameraMatrix, CameraMatrix, vec4.fromValues(0.5, 0.5, 1.0, 1.0));
             var phi = freeCamR.getPhi();
-            var vec_1 = vec3.fromValues(1.0,0.0,0.0);
+            var vec_1 = vec3.fromValues(1.0, 0.0, 0.0);
             mat4.rotate(CameraMatrix, CameraMatrix, phi, vec_1);
 
             var theta = freeCamR.getTheta();
@@ -71,7 +71,7 @@ class CameraHandler{
         }
     }
 
-    setHandler(){
+    setHandler() {
         var body = document.getElementById("my_body");
         var canvas = document.getElementById("my_canvas");
 
@@ -81,7 +81,7 @@ class CameraHandler{
         this.setOrbit();
     }
 
-    setOrbit(){
+    setOrbit() {
 
         //asumiendo que el body y canvas estan creados y son globales
         body.onkeydown = this.onKeyDownOrbit;
@@ -93,7 +93,7 @@ class CameraHandler{
         this.updateMatrix();
     }
 
-    setFree(){
+    setFree() {
 
         body.onkeydown = this.onKeyDownFree;
         canvas.onmousemove = this.onMouseMoveFree;
@@ -104,7 +104,7 @@ class CameraHandler{
         this.updateMatrix();
     }
 
-    setFreeR(){
+    setFreeR() {
 
         body.onkeydown = this.onKeyDownFreeR;
         canvas.onmousemove = this.onMouseMoveFreeR;
@@ -128,30 +128,30 @@ class CameraHandler{
 
         switch (e.keyCode) {
             case 87: // W
-                freeCam.addPosZ(Math.cos(theta) * VEL_MOV/10);
-                freeCam.addPosX(Math.sin(theta) * VEL_MOV/10);
+                freeCam.addPosZ(Math.cos(theta) * VEL_MOV / 10);
+                freeCam.addPosX(Math.sin(theta) * VEL_MOV / 10);
                 break;
 
             case 65: // A
-                freeCam.addPosZ(Math.cos(theta + Math.PI/2) * VEL_MOV/10);
-                freeCam.addPosX(Math.sin(theta + Math.PI/2) * VEL_MOV/10);
+                freeCam.addPosZ(Math.cos(theta + Math.PI / 2) * VEL_MOV / 10);
+                freeCam.addPosX(Math.sin(theta + Math.PI / 2) * VEL_MOV / 10);
                 break;
 
             case 83: // S
-                freeCam.addPosZ(-Math.cos(theta) * VEL_MOV/10);
-                freeCam.addPosX(-Math.sin(theta) * VEL_MOV/10);
+                freeCam.addPosZ(-Math.cos(theta) * VEL_MOV / 10);
+                freeCam.addPosX(-Math.sin(theta) * VEL_MOV / 10);
                 break;
 
             case 68: // D
-                freeCam.addPosZ(Math.cos(theta - Math.PI/2) * VEL_MOV/10);
-                freeCam.addPosX(Math.sin(theta - Math.PI/2) * VEL_MOV/10);
+                freeCam.addPosZ(Math.cos(theta - Math.PI / 2) * VEL_MOV / 10);
+                freeCam.addPosX(Math.sin(theta - Math.PI / 2) * VEL_MOV / 10);
                 break;
 
             case 81: // Q
                 freeCam.addPosY(-VEL_MOV / 10);
                 break;
             case 69: //E
-                freeCam.addPosY( VEL_MOV / 10);
+                freeCam.addPosY(VEL_MOV / 10);
                 break;
 
             case 50: // 2
@@ -176,21 +176,21 @@ class CameraHandler{
             mouse.setPosX(e.clientX);
             mouse.setPosY(e.clientY);
 
-            freeCam.addTheta( deltaX * mouse.getVel() );
-            freeCam.addPhi( -deltaY * mouse.getVel() );
+            freeCam.addTheta(deltaX * mouse.getVel());
+            freeCam.addPhi(-deltaY * mouse.getVel());
 
-            if (freeCam.getPhi() < -Math.PI/2) {
+            if (freeCam.getPhi() < -Math.PI / 2) {
                 freeCam.setPhi(-Math.PI / 2);
             }
 
-            if (freeCam.getPhi() > Math.PI/2) {
+            if (freeCam.getPhi() > Math.PI / 2) {
                 freeCam.setPhi(Math.PI / 2);
             }
             this.handler.updateMatrix();
         }
     }
 
-    onMousePressedFree(e){
+    onMousePressedFree(e) {
         mouse.setPosX(e.clientX);
         mouse.setPosY(e.clientY);
         mouse.pressedOn();
@@ -212,14 +212,14 @@ class CameraHandler{
 
      */
 
-    onKeyDownOrbit (e){
+    onKeyDownOrbit(e) {
         switch (e.keyCode) {
 
             //Caso en el que + aumenta el zoom
             case 107:
 
                 orbitCam.addRadius(-VEL_MOV);
-                if (orbitCam.getRadius() < 0.0){
+                if (orbitCam.getRadius() < 0.0) {
                     orbitCam.setRadius(0.0);
                 }
                 this.handler.updateMatrix();
@@ -227,7 +227,7 @@ class CameraHandler{
 
             case 109:		// '-'
                 orbitCam.addRadius(VEL_MOV);
-                if (orbitCam.getRadius < 0.0){
+                if (orbitCam.getRadius < 0.0) {
                     orbitCam.setRadius(0.0);
                 }
                 this.handler.updateMatrix();
@@ -247,7 +247,7 @@ class CameraHandler{
         }
     }
 
-    onMouseMoveOrbit(e){
+    onMouseMoveOrbit(e) {
         //Se tiene que mover si el mouse esta apretado
         if (mouse.pressedState()) {
 
@@ -262,11 +262,11 @@ class CameraHandler{
             orbitCam.addTheta(deltaX * mouse.getVel());
             orbitCam.addPhi(-deltaY * mouse.getVel());
 
-            if (orbitCam.getPhi() < -Math.PI/2) {
+            if (orbitCam.getPhi() < -Math.PI / 2) {
                 orbitCam.setPhi(-Math.PI / 2);
             }
 
-            if (orbitCam.getPhi() > Math.PI/2) {
+            if (orbitCam.getPhi() > Math.PI / 2) {
                 orbitCam.setPhi(Math.PI / 2);
             }
 
@@ -275,7 +275,7 @@ class CameraHandler{
 
     }
 
-    onMousePressedOrbit(e){
+    onMousePressedOrbit(e) {
         mouse.setPosX(e.clientX);
         mouse.setPosY(e.clientY);
         mouse.pressedOn();
@@ -298,23 +298,23 @@ class CameraHandler{
 
         switch (e.keyCode) {
             case 87: // W
-                freeCamR.addPosZ(Math.cos(theta) * VEL_MOV/10);
-                freeCamR.addPosX(Math.sin(theta) * VEL_MOV/10);
+                freeCamR.addPosZ(Math.cos(theta) * VEL_MOV / 10);
+                freeCamR.addPosX(Math.sin(theta) * VEL_MOV / 10);
                 break;
 
             case 65: // A
-                freeCamR.addPosZ(Math.cos(theta + Math.PI/2) * VEL_MOV/10);
-                freeCamR.addPosX(Math.sin(theta + Math.PI/2) * VEL_MOV/10);
+                freeCamR.addPosZ(Math.cos(theta + Math.PI / 2) * VEL_MOV / 10);
+                freeCamR.addPosX(Math.sin(theta + Math.PI / 2) * VEL_MOV / 10);
                 break;
 
             case 83: // S
-                freeCamR.addPosZ(-Math.cos(theta) * VEL_MOV/10);
-                freeCamR.addPosX(-Math.sin(theta) * VEL_MOV/10);
+                freeCamR.addPosZ(-Math.cos(theta) * VEL_MOV / 10);
+                freeCamR.addPosX(-Math.sin(theta) * VEL_MOV / 10);
                 break;
 
             case 68: // S
-                freeCamR.addPosZ(Math.cos(theta - Math.PI/2) * VEL_MOV/10);
-                freeCamR.addPosX(Math.sin(theta - Math.PI/2) * VEL_MOV/10);
+                freeCamR.addPosZ(Math.cos(theta - Math.PI / 2) * VEL_MOV / 10);
+                freeCamR.addPosX(Math.sin(theta - Math.PI / 2) * VEL_MOV / 10);
                 break;
                 break;
 
@@ -322,7 +322,7 @@ class CameraHandler{
                 freeCamR.addPosY(-VEL_MOV / 10);
                 break;
             case 69: //E
-                freeCamR.addPosY( VEL_MOV / 10);
+                freeCamR.addPosY(VEL_MOV / 10);
                 break;
 
             case 49: // 1
@@ -347,21 +347,21 @@ class CameraHandler{
             mouse.setPosX(e.clientX);
             mouse.setPosY(e.clientY);
 
-            freeCamR.addTheta( deltaX * mouse.getVel() );
-            freeCamR.addPhi( -deltaY * mouse.getVel() );
+            freeCamR.addTheta(deltaX * mouse.getVel());
+            freeCamR.addPhi(-deltaY * mouse.getVel());
 
-            if (freeCamR.getPhi() < -Math.PI/2) {
+            if (freeCamR.getPhi() < -Math.PI / 2) {
                 freeCamR.setPhi(-Math.PI / 2);
             }
 
-            if (freeCamR.getPhi() > Math.PI/2) {
+            if (freeCamR.getPhi() > Math.PI / 2) {
                 freeCamR.setPhi(Math.PI / 2);
             }
             this.handler.updateMatrix();
         }
     }
 
-    onMousePressedFreeR(e){
+    onMousePressedFreeR(e) {
         mouse.setPosX(e.clientX);
         mouse.setPosY(e.clientY);
         mouse.pressedOn();
@@ -373,13 +373,13 @@ class CameraHandler{
 
     /*---------- METODOS EXTRA -------------*/
 
-    getPosition(){
+    getPosition() {
 
-        if(this.mode == "free"){
+        if (this.mode == "free") {
             return freeCam.getPos();
         }
 
-        else if(this.mode == "freeR"){
+        else if (this.mode == "freeR") {
             return freeCamR.getPos();
         }
 
