@@ -288,6 +288,50 @@ class ObjetosFactory {
 
     }
 
+    createIntersectionFromThree(geometry) {
+        var intersection = new Objeto3D();
+
+        // Extract data from Three.js BufferGeometry
+        var positions = geometry.attributes.position.array;
+        var indices = geometry.index ? geometry.index.array : null;
+
+        // If no indices, create them for triangles
+        if (!indices) {
+            indices = [];
+            for (var i = 0; i < positions.length / 3; i++) {
+                indices.push(i);
+            }
+        }
+
+        var buffcalc = new BufferCalculator(0, 0);
+        buffcalc.posBuffer = [];
+        // Map to project coordinate system: X is height/offset, Y and Z are the plan plane
+        for (var i = 0; i < positions.length; i += 3) {
+            buffcalc.posBuffer.push(0.02);         // X (Height/Offset) - slightly higher to avoid z-fighting
+            buffcalc.posBuffer.push(positions[i]); // Y (Plan X)
+            buffcalc.posBuffer.push(positions[i + 1]); // Z (Plan Y)
+        }
+        buffcalc.indexBuffer = Array.from(indices);
+
+        var normals = [];
+        var tangents = [];
+        for (var i = 0; i < buffcalc.posBuffer.length; i += 3) {
+            normals.push(1); normals.push(0); normals.push(0); // X is Up
+            tangents.push(0); tangents.push(1); tangents.push(0); // Y is Tangent
+        }
+        buffcalc.normalBuffer = normals;
+        buffcalc.tangentBuffer = tangents;
+
+        intersection.setBufferCreator(buffcalc);
+        // We need to set a flag or custom draw mode for TRIANGLES if necessary
+        // In Objeto3D.js, we might need to handle draw mode if it only does TRIANGLE_STRIP
+        intersection.build();
+        intersection.setType("esquina", 1.0);
+        intersection.useTangent = true;
+
+        return intersection;
+    }
+
     createEsquina(x) {
         /*La esquina es considerada como
          una calle con las mismas dimensiones de

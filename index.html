@@ -1902,7 +1902,12 @@
         }
 
 
+        var engineStarted = false;
         function webGLStart() {
+            if (engineStarted) {
+                this.rellenarGrilla();
+                return;
+            }
 
             /*Funciones Inicializadoras*/
             canvas = document.getElementById("my_canvas");
@@ -1939,6 +1944,7 @@
             gl.clearColor(255.0, 255.0, 255.0, 1.0);
             gl.enable(gl.DEPTH_TEST);
 
+            engineStarted = true;
             drawScene();
         }
 
@@ -2380,7 +2386,7 @@
         var currentRutaTexture = "textures/ruta.jpg";
 
         function loadSimpang3() {
-            currentRutaTexture = "textures/cruce.jpg";
+            currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
                 [[50, 150], [100, 150], [150, 150], [200, 150], [250, 150], [275, 150], [300, 150]], /* Horizontal */
                 [[150, 300], [150, 250], [150, 200], [150, 150], [150, 150], [150, 150], [150, 150]]  /* Vertical Bottom */
@@ -2392,7 +2398,7 @@
         }
 
         function loadSimpang4() {
-            currentRutaTexture = "textures/cruce.jpg";
+            currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
                 [[50, 150], [100, 150], [150, 150], [200, 150], [250, 150], [275, 150], [300, 150]], /* Horizontal */
                 [[150, 0], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 300]]   /* Vertical Full */
@@ -2404,7 +2410,7 @@
         }
 
         function loadSimpang5() {
-            currentRutaTexture = "textures/cruce.jpg";
+            currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
                 [[50, 150], [100, 150], [150, 150], [200, 150], [250, 150], [275, 150], [300, 150]], /* Horizontal */
                 [[150, 0], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 300]],  /* Vertical Full */

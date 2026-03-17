@@ -3,16 +3,16 @@ var CIRCUNFERENCIA = "circunferencia";
 var LINEA = "linea";
 var BASE_RUTA = "base_ruta";
 var ASFALTO_RUTA = "asfalto_ruta";
-var ESTRUCTURA_EDIFICIO= "estructura_edificio";
-var TAPA_EDIFICIO="tapa_edificio";
-var ESTRUCTURA_LUZ= "estructura_luz";
-var TAPA_LUZ="tapa_luz";
-var CARROCERIA="carroceria";
-var RUEDA="rueda";
-var ESCENA ="escena";
+var ESTRUCTURA_EDIFICIO = "estructura_edificio";
+var TAPA_EDIFICIO = "tapa_edificio";
+var ESTRUCTURA_LUZ = "estructura_luz";
+var TAPA_LUZ = "tapa_luz";
+var CARROCERIA = "carroceria";
+var RUEDA = "rueda";
+var ESCENA = "escena";
 var TECHO = "techo";
-var COLUMNA= "columna";
-var BASE_COLUMNA="base_columna";
+var COLUMNA = "columna";
+var BASE_COLUMNA = "base_columna";
 var TAPA_COLUMNA = "tapa_columna";
 var CALLE = "calle";
 var EDIFICIO = "edificio";
@@ -26,9 +26,9 @@ var POSTE = "poste";
 var PUERTA = "puerta";
 var ESFERA = "esfera";
 
-class Objeto3D extends Container3D{
+class Objeto3D extends Container3D {
 
-    constructor(){
+    constructor() {
         super();
 
         this.figuras = null;
@@ -60,29 +60,29 @@ class Objeto3D extends Container3D{
 
     //recibe un objectype que es un string que tiene que ser similar a alguno de los define superiores
     //id no se bien que es
-    setType(objectType, id, y = null, x = false){
+    setType(objectType, id, y = null, x = false) {
         this.objectType = objectType;
         this.id = id;
         this.maxY = y - Math.random(); //le resto un random para que las alturas de las entradas no queden fijas
         this.luz = x;
     }
 
-    setCountEd(countEdi){
+    setCountEd(countEdi) {
         this.cantEdificios = countEdi;
     }
 
     /**********METODOS DE MODELADO*************/
 
     //Define al constructor de BufferCreator que devuelve un array del buffer pedido
-    setBufferCreator(bufferCalculator){
+    setBufferCreator(bufferCalculator) {
         this.bufferCreator = bufferCalculator;
     }
 
     /**********METODOS DE DIBUJADO**********/
     /*Construye todos los buffers necesitados*/
-    build(){
+    build() {
         this.posBuffer = this.bufferCreator.getPosBuffer();
-        this.normalBuffer =this.bufferCreator.getNormalBuffer();
+        this.normalBuffer = this.bufferCreator.getNormalBuffer();
         this.colorBuffer = this.bufferCreator.getColorBuffer();
         this.indexBuffer = this.bufferCreator.getIndexBuffer();
         this.textureBuffer1 = this.bufferCreator.getTextureBuffer1();
@@ -93,7 +93,7 @@ class Objeto3D extends Container3D{
     }
 
     /*Setea los WebGlBuffers para la hora de renderizar*/
-    setUpWebGLBuffers(){
+    setUpWebGLBuffers() {
 
         this.webglNormalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.webglNormalBuffer);
@@ -114,14 +114,14 @@ class Objeto3D extends Container3D{
         this.webglIndexBuffer.itemSize = 1;
         this.webglIndexBuffer.numItems = this.indexBuffer.length;
 
-        if(this.bufferCreator.texture1){
+        if (this.bufferCreator.texture1) {
             this.webglTextureBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglTextureBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureBuffer1), gl.STATIC_DRAW);
             this.webglTextureBuffer.itemSize = 2;
             this.webglTextureBuffer.numItems = this.textureBuffer1.length / 2;
         }
-        else{
+        else {
             this.webglColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglColorBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colorBuffer), gl.STATIC_DRAW);
@@ -129,7 +129,7 @@ class Objeto3D extends Container3D{
             this.webglColorBuffer.numItems = this.colorBuffer.length / 3;
         }
 
-        if(this.textureBuffer2.length > 0){
+        if (this.textureBuffer2.length > 0) {
             this.webglTextureBuffer2 = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglTextureBuffer2);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureBuffer2), gl.STATIC_DRAW);
@@ -137,7 +137,7 @@ class Objeto3D extends Container3D{
             this.webglTextureBuffer2.numItems = this.textureBuffer2.length / 2;
         }
         //if(this.tangentBuffer >0){
-        if(this.tangentBuffer){
+        if (this.tangentBuffer) {
             this.webglTangentBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglTangentBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.tangentBuffer), gl.STATIC_DRAW);
@@ -153,12 +153,12 @@ class Objeto3D extends Container3D{
      transformaciones de traslacion.
      IMPORTANTE:la cantidad de rows tiene que ser igual a la longitud del arrayMat y del Array Pos
      */
-    calcularSuperficieBarrido(figura, rows, colms, arrayMatT, arrayVecPos, barrer = true){
+    calcularSuperficieBarrido(figura, rows, colms, arrayMatT, arrayVecPos, barrer = true) {
 
         //console.log("supBarrido");
         var buffcalc = new BufferCalculator(rows, colms);
         //chequeo tamaños correctos
-        if((arrayMatT.length != rows || arrayVecPos.length != rows)) {
+        if ((arrayMatT.length != rows || arrayVecPos.length != rows)) {
             //Se chequea el caso en el que es edificio
             if (arrayVecPos.length != rows + 1) {
                 console.log("error de dimension para la superficie con escalado");
@@ -168,74 +168,74 @@ class Objeto3D extends Container3D{
         var vertices = [];
         var arrayVecNOR = [];
 
-        if (figura == CUADRADO){
-            if(colms != 5){
+        if (figura == CUADRADO) {
+            if (colms != 5) {
                 console.log("para hacer un cuadrado se necesitan exactamente 5 vertices");
             }
             this.figuras.calcularCuadrado(vertices, arrayVecNOR);
         }
 
-        else if(figura == ESTRUCTURA_EDIFICIO){
-            if(colms != 5){
+        else if (figura == ESTRUCTURA_EDIFICIO) {
+            if (colms != 5) {
                 console.log("para hacer un edificio se necesitan exactamente 5 vertices");
             }
             //Si estamos en el edificio, se le agrega un vector para el escalado.
             //Lo borramos para no romper la superficie.
             var escalado = arrayVecPos.pop();
-            this.figuras.calcularEstructuraEdificio(vertices,arrayVecNOR,escalado);
+            this.figuras.calcularEstructuraEdificio(vertices, arrayVecNOR, escalado);
             buffcalc.setTextures(1);
             //this.addColor(buffcalc,25, 1.0, 0.0, 0.0);
         }
 
-        else if(figura == TAPA_EDIFICIO){
-            if(colms != 2){
+        else if (figura == TAPA_EDIFICIO) {
+            if (colms != 2) {
                 console.log("para hacer una tapa se necesitan exactamente 2 vertices");
             }
             //el ultimo trae la dimension de x
             var escalado = arrayVecPos.pop();
-            this.figuras.calcularTapaEdificio(vertices,arrayVecNOR,escalado[0]);
-            this.addColor(buffcalc, 4, 0.41,0.41,0.41);
+            this.figuras.calcularTapaEdificio(vertices, arrayVecNOR, escalado[0]);
+            this.addColor(buffcalc, 4, 0.41, 0.41, 0.41);
         }
 
-        else if(figura == ESTRUCTURA_LUZ){
-            if(colms != 5){
+        else if (figura == ESTRUCTURA_LUZ) {
+            if (colms != 5) {
                 console.log("para hacer un edificio se necesitan exactamente 5 vertices");
             }
             //Si estamos en el edificio, se le agrega un vector para el escalado.
             //Lo borramos para no romper la superficie.
             var escalado = arrayVecPos.pop();
-            this.figuras.calcularEstructuraEdificio(vertices,arrayVecNOR,escalado);
+            this.figuras.calcularEstructuraEdificio(vertices, arrayVecNOR, escalado);
             buffcalc.setTextures(1);
             //this.addColor(buffcalc,25, 1.0, 0.0, 0.0);
         }
 
-        else if(figura == TAPA_LUZ){
-            if(colms != 2){
+        else if (figura == TAPA_LUZ) {
+            if (colms != 2) {
                 console.log("para hacer una tapa se necesitan exactamente 2 vertices");
             }
             //el ultimo trae la dimension de x
             var escalado = arrayVecPos.pop();
-            this.figuras.calcularTapaEdificio(vertices,arrayVecNOR,escalado[0]);
+            this.figuras.calcularTapaEdificio(vertices, arrayVecNOR, escalado[0]);
             buffcalc.setTextures(1);
             //this.addColor(buffcalc, 4, 1.0,0.0,0.0);
         }
 
-        else if(figura == CIRCUNFERENCIA){
+        else if (figura == CIRCUNFERENCIA) {
             var radio = 0.35;
             this.figuras.calcularCirculo(colms, vertices, arrayVecNOR, radio);
             buffcalc.setTextures(1);
         }
 
-        else if(figura == LINEA){
-            if(colms != 2){
+        else if (figura == LINEA) {
+            if (colms != 2) {
                 console.log("para hacer una linea se necesitan exactamente 2 vertices");
             }
             //console.log(colms);
             this.figuras.calcularLinea(vertices, arrayVecNOR);
         }
 
-        else if(figura == BASE_RUTA){
-            if(colms != 13){
+        else if (figura == BASE_RUTA) {
+            if (colms != 13) {
                 console.log("para hacer una base de ruta se necesitan exactamente 9 vertices");
             }
             this.figuras.calcularBaseRuta(vertices, arrayVecNOR);
@@ -244,8 +244,8 @@ class Objeto3D extends Container3D{
             buffcalc.setTextures(1);
         }
 
-        else if(figura == ASFALTO_RUTA){
-            if(colms != 5){
+        else if (figura == ASFALTO_RUTA) {
+            if (colms != 5) {
                 console.log("para hacer el asfalto de la ruta se necesitan exactamente 5 vertices");
             }
             this.figuras.calcularAsfaltoRuta(vertices, arrayVecNOR);
@@ -254,8 +254,8 @@ class Objeto3D extends Container3D{
             buffcalc.setTextures(1);
         }
 
-        else if(figura == CALLE){
-            if(colms != 2){
+        else if (figura == CALLE) {
+            if (colms != 2) {
                 console.log("para hacer una calle se necesitan exactamente 2 vertices");
             }
             escalado = arrayVecPos.pop();
@@ -265,18 +265,18 @@ class Objeto3D extends Container3D{
             //this.addColor(buffcalc, 4, 0.3, 0.3, 0.3);
         }
 
-        else if(figura == ESCENA){
-            if(colms != 2){
+        else if (figura == ESCENA) {
+            if (colms != 2) {
                 console.log("para hacer una grilla se necesitan exactamente 2 vertices");
             }
             escalado = arrayVecPos.pop();
             this.figuras.calcularEscena(vertices, arrayVecNOR, escalado[0]);
-            this.addColor(buffcalc,4, 0.3, 0.3, 0.3);
+            this.addColor(buffcalc, 4, 0.3, 0.3, 0.3);
             //buffcalc.setTextures(1);
         }
 
-        else if(figura == CARROCERIA){
-            if(colms != 9){
+        else if (figura == CARROCERIA) {
+            if (colms != 9) {
                 console.log("para hacer la carroceria se necesitan 19 vertices");
             }
             this.figuras.calcularCarroceria(vertices, arrayVecNOR);
@@ -284,26 +284,26 @@ class Objeto3D extends Container3D{
             //this.addColor(buffcalc,42, 0.0, 0.0, 1.0);
         }
 
-        else if(figura == TECHO){
-            this.figuras.calcularTecho(vertices,arrayVecNOR);
+        else if (figura == TECHO) {
+            this.figuras.calcularTecho(vertices, arrayVecNOR);
             this.addColor(buffcalc, 12, 0.0, 0.0, 1.0);
         }
 
-        else if(figura == RUEDA){
-            if(colms != 11){
+        else if (figura == RUEDA) {
+            if (colms != 11) {
                 console.log("para hacer la rueda se necesitan 11 vertices");
             }
             escalado = arrayVecPos.pop();
-            this.figuras.createRueda(vertices,arrayVecNOR,escalado);
-            this.addColor(buffcalc,vertices.length*3,0.0,0.0,0.0);
+            this.figuras.createRueda(vertices, arrayVecNOR, escalado);
+            this.addColor(buffcalc, vertices.length * 3, 0.0, 0.0, 0.0);
         }
 
-        else if(figura == VEREDA){
-            if(colms != 24){
+        else if (figura == VEREDA) {
+            if (colms != 24) {
                 console.log("Para hacer una vereda se necesitan 24 puntos");
             }
             var vereda = arrayVecPos.pop();
-            this.figuras.calcularVereda(vertices,arrayVecNOR);
+            this.figuras.calcularVereda(vertices, arrayVecNOR);
             var largo = vertices.length;
             buffcalc.setTextures(1);
             buffcalc.tangent = true;
@@ -313,23 +313,23 @@ class Objeto3D extends Container3D{
             console.log("le pasaste mal la figura");
         }
 
-        if(barrer) {
+        if (barrer) {
             this.setBufferCreator(buffcalc);
             this.bufferCreator.calcularSuperficieBarrido(vertices, arrayMatT, arrayVecPos, arrayVecNOR);
-            if(figura == CARROCERIA){
+            if (figura == CARROCERIA) {
                 this.llenarTexture(buffcalc);
             }
             this.build();
         }
-        else if(! barrer){
-            this.bufferCreator.posBuffer=vertices;
+        else if (!barrer) {
+            this.bufferCreator.posBuffer = vertices;
         }
     }
 
-    llenarTexture(buf){
+    llenarTexture(buf) {
 
-        var tex=[0.0,1.0,  0.0,1.0,  0.12,1.0,  0.28,1.0,  0.38,0.8,  0.685,1.0,  0.75,1.0,  0.875,1.0,  1.0,1.0,
-            0.0,0.0,  0.0,0.0,  0.12,0.0,  0.28,0.0,  0.38,0.2,  0.685,0.0,  0.75,0.0,  0.875,0.0,  1.0,0.0
+        var tex = [0.0, 1.0, 0.0, 1.0, 0.12, 1.0, 0.28, 1.0, 0.38, 0.8, 0.685, 1.0, 0.75, 1.0, 0.875, 1.0, 1.0, 1.0,
+            0.0, 0.0, 0.0, 0.0, 0.12, 0.0, 0.28, 0.0, 0.38, 0.2, 0.685, 0.0, 0.75, 0.0, 0.875, 0.0, 1.0, 0.0
 
         ];
 
@@ -342,36 +342,36 @@ class Objeto3D extends Container3D{
      Colms representa el n que divide el angulo tal que : 2pi/n para la rotacion
 
      */
-    calcularSuperficieRevolucion(figura,rows,colms){
+    calcularSuperficieRevolucion(figura, rows, colms) {
 
-        var arrayVecPos= [];
-        var ejeRotacion=[];
-        var arrayVecNor=[];
+        var arrayVecPos = [];
+        var ejeRotacion = [];
+        var arrayVecNor = [];
 
         var buffcalc = new BufferCalculator(rows, colms);
 
-        if(figura == COLUMNA){
-            if(rows != 2){
+        if (figura == COLUMNA) {
+            if (rows != 2) {
                 console.log("Para el pilar de la columna se necesitan solo 2 niveles");
             }
             this.figuras.calcularColumna(arrayVecPos, ejeRotacion, arrayVecNor);
-            this.addColor(buffcalc, rows*colms,0.41,0.41,0.41);
+            this.addColor(buffcalc, rows * colms, 0.41, 0.41, 0.41);
         }
 
-        if(figura == BASE_COLUMNA){
-            if(rows != 8){
+        if (figura == BASE_COLUMNA) {
+            if (rows != 8) {
                 console.log("Para la base de la columna se necesitan 8 niveles");
             }
-            this.figuras.calcularBaseColumna(rows,arrayVecPos,ejeRotacion,arrayVecNor);
-            this.addColor(buffcalc, rows*colms,0.41,0.41,0.41);
+            this.figuras.calcularBaseColumna(rows, arrayVecPos, ejeRotacion, arrayVecNor);
+            this.addColor(buffcalc, rows * colms, 0.41, 0.41, 0.41);
         }
 
-        if(figura == TAPA_COLUMNA){
-            if(rows != 3){
+        if (figura == TAPA_COLUMNA) {
+            if (rows != 3) {
                 console.log("Para la tapa de la columna se necesitan 3 niveles");
             }
             this.figuras.calcularTapaColumna(arrayVecPos, ejeRotacion, arrayVecNor);
-            this.addColor(buffcalc, rows*colms,0.41,0.41,0.41);
+            this.addColor(buffcalc, rows * colms, 0.41, 0.41, 0.41);
         }
 
         buffcalc.calcularSuperficieRevolucion(arrayVecPos, ejeRotacion, arrayVecNor);
@@ -380,10 +380,10 @@ class Objeto3D extends Container3D{
     }
 
 
-    addColor(buf,largo,r,g,b){
+    addColor(buf, largo, r, g, b) {
 
         var color = []
-        for(var i=0; i<largo; i++){
+        for (var i = 0; i < largo; i++) {
             color.push(r);
             color.push(g);
             color.push(b);
@@ -401,11 +401,11 @@ class Objeto3D extends Container3D{
      * @param {pMatrix} mat4 Matriz de proyeccion
      * @param {parentMod} bool Indica si el padre fue modificado o no
      */
-    draw(mMatrix, parentMod){
+    draw(mMatrix, parentMod) {
         //Se crea una matriz nueva para no modificar la matriz del padre
 
         var modelMatrix = mat4.create();
-        if(this.modified || parentMod){
+        if (this.modified || parentMod) {
             mat4.multiply(modelMatrix, mMatrix, this.matrix);
             mat4.multiply(this.prevModelMatrix, modelMatrix, mat4.create());
         } else mat4.multiply(modelMatrix, this.prevModelMatrix, mat4.create());
@@ -413,61 +413,61 @@ class Objeto3D extends Container3D{
         this._drawChildren(modelMatrix, CameraMatrix, pMatrix, this.modified || parentMod);
         this.modified = false;
 
-        if(this.objectType == "ruta"){
+        if (this.objectType == "ruta") {
             return;
         }
-        if (this.objectType == CALLE){
+        if (this.objectType == CALLE) {
             this.setShaderProgram(cityShader);
             this.useTangent = true;
         }
-        else if (this.objectType == EDIFICIO){
+        else if (this.objectType == EDIFICIO) {
             this.setShaderProgram(buildingShaders);
             this.useTangent = false;
         }
-        else if (this.objectType == ESQUINA){
+        else if (this.objectType == ESQUINA) {
             this.useTangent = true;
             this.setShaderProgram(cityShader);
         }
-        else if (this.objectType == VEREDA){
+        else if (this.objectType == VEREDA) {
             this.useTangent = true;
             this.setShaderProgram(cityShader);
         }
-        else if(this.objectType == AUTOPISTA){
+        else if (this.objectType == AUTOPISTA) {
             this.useTangent = true;
             this.setShaderProgram(streetShader);
         }
-        else if(this.objectType == SKY){
+        else if (this.objectType == SKY) {
             this.useTangent = false;
             this.setShaderProgram(skyShader);
         }
-        else if(this.objectType == PASTO){
+        else if (this.objectType == PASTO) {
             this.useTangent = true;
             this.setShaderProgram(cityShader);
         }
-        else if(this.objectType == CONCRETO){
+        else if (this.objectType == CONCRETO) {
             this.useTangent = true;
             this.setShaderProgram(streetShader);
         }
-        else if(this.objectType == POSTE){
+        else if (this.objectType == POSTE) {
             this.useTangent = true;
             this.setShaderProgram(streetShader);
         }
-        else if(this.objectType == PUERTA){
+        else if (this.objectType == PUERTA) {
             this.useTangent = true;
             this.setShaderProgram(streetShader);
         }
-        else if(this.objectType == RUEDA){
+        else if (this.objectType == RUEDA) {
             this.useTangent = true;
             this.setShaderProgram(streetShader);
         }
-        else if(this.objectType == CARROCERIA){
+        else if (this.objectType == CARROCERIA) {
             this.useTangent = true;
             this.setShaderProgram(streetShader);
         }
-        else if(this.objectType == ESFERA){
+        else if (this.objectType == ESFERA) {
             this.setShaderProgram(cityShader);
         }
-        else{
+        else {
             this.setShaderProgram(shaderProgramColoredObject);
         }
 
@@ -482,18 +482,18 @@ class Objeto3D extends Container3D{
         gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, this.webglPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
 
-        if(this.objectType != SKY) {
+        if (this.objectType != SKY) {
             //Normal
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglNormalBuffer);
             gl.vertexAttribPointer(this.shaderProgram.vertexNormalAttribute, this.webglNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
         }
 
         //Texture
-        if(this.bufferCreator.texture1){
+        if (this.bufferCreator.texture1) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglTextureBuffer);
             gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, this.webglTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
         }
-        else{
+        else {
             //Color
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglColorBuffer);
             gl.vertexAttribPointer(this.shaderProgram.vertexColorAttribute, this.webglColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -501,19 +501,19 @@ class Objeto3D extends Container3D{
         }
 
         //Tangent
-        if(this.useTangent) {
+        if (this.useTangent) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webglTangentBuffer);
             gl.vertexAttribPointer(this.shaderProgram.vertexTangentAttribute, this.webglTangentBuffer.itemSize, gl.FLOAT, false, 0, 0);
         }
 
         //a continuacion se setea todo dependiendo del id
-        if(this.objectType == CALLE){
+        if (this.objectType == CALLE) {
             //gl.vertexAttrib1f(idCity, this.id);
             var count = gl.getUniformLocation(this.shaderProgram, "atID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == EDIFICIO){
+        if (this.objectType == EDIFICIO) {
             var count = gl.getUniformLocation(this.shaderProgram, "aID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
@@ -523,55 +523,55 @@ class Objeto3D extends Container3D{
             var maxY = gl.getUniformLocation(this.shaderProgram, "amaxY");
             gl.uniform1f(maxY, this.maxY);
         }
-        if(this.objectType == ESQUINA){
+        if (this.objectType == ESQUINA) {
             //gl.vertexAttrib1f(idCity,this.id);
             var count = gl.getUniformLocation(this.shaderProgram, "atID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == VEREDA){
+        if (this.objectType == VEREDA) {
             //gl.vertexAttrib1f(idCity, this.id);
             var count = gl.getUniformLocation(this.shaderProgram, "atID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == AUTOPISTA){
+        if (this.objectType == AUTOPISTA) {
             var count = gl.getUniformLocation(this.shaderProgram, "attID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == PASTO){
+        if (this.objectType == PASTO) {
             //gl.vertexAttrib1f(idCity, this.id);
             var count = gl.getUniformLocation(this.shaderProgram, "atID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == CONCRETO){
+        if (this.objectType == CONCRETO) {
             var count = gl.getUniformLocation(this.shaderProgram, "attID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == POSTE){
+        if (this.objectType == POSTE) {
             var count = gl.getUniformLocation(this.shaderProgram, "attID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == PUERTA){
+        if (this.objectType == PUERTA) {
             var count = gl.getUniformLocation(this.shaderProgram, "attID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == RUEDA){
+        if (this.objectType == RUEDA) {
             var count = gl.getUniformLocation(this.shaderProgram, "attID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == CARROCERIA){
+        if (this.objectType == CARROCERIA) {
             var count = gl.getUniformLocation(this.shaderProgram, "attID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
         }
-        if(this.objectType == ESFERA){
+        if (this.objectType == ESFERA) {
             var count = gl.getUniformLocation(this.shaderProgram, "atID");
             gl.useProgram(this.shaderProgram);
             gl.uniform1f(count, this.id);
@@ -591,7 +591,7 @@ class Objeto3D extends Container3D{
         //Draw
         //if(this.objectType != SKY) {
 
-            gl.drawElements(gl.TRIANGLE_STRIP, this.webglIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_STRIP, this.webglIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
         //}
     }
 
