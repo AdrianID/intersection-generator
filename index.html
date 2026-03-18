@@ -1641,7 +1641,7 @@
 
             //se cargan las texturas de la esquina
             gl.useProgram(cityShader);
-            loadTexture("textures/cruce.jpg", "esquina");
+            loadTexture("textures/best_practice_intersection.png", "esquina");
 
             var location = gl.getUniformLocation(cityShader, "esquina");
             gl.uniform1i(location, 22);
@@ -1996,8 +1996,8 @@
             startNode.addConnection(segment);
             endNode.addConnection(segment);
 
-            // Clipping for 3D construction
-            var clippedPoints = segment.generateClippedPoints(8.0);
+            // Clipping for 3D construction (Road width is 33.6, half is 16.8. Clip 20 for safety)
+            var clippedPoints = segment.generateClippedPoints(20.0);
             var vector_puntos = [];
             for (var i = 0; i < clippedPoints.length; i++) {
                 vector_puntos.push(vec3.fromValues(0.0, (clippedPoints[i][0] - 150) + 140, (clippedPoints[i][1] - 150) + 140));
@@ -2199,216 +2199,218 @@
 </head>
 
 <style>
+    :root {
+        --primary: #63a1aa;
+        --danger: #e74c3c;
+        --bg-light: #f8fafc;
+        --sidebar-bg: #ffffff;
+        --text-main: #334155;
+        --text-muted: #64748b;
+        --radius: 12px;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
     body {
-        font-family: "Lato", sans-serif;
-        background-image: url("whirlpool.png");
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: var(--bg-light);
+        color: var(--text-main);
+        overflow: hidden;
     }
 
-    .button {
-        box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        position: relative;
-        top: -180px;
-        left: 460px;
-        display: inline-block;
-        border-radius: 4px;
-        background-color: #63a1aa;
-        border: none;
-        color: #FFFFFF;
-        text-align: center;
-        font-size: 28px;
-        padding: 20px;
-        width: 200px;
-        transition: all 0.5s;
-        cursor: pointer;
-        margin: 5px;
+    .sidebar {
+        width: 320px;
+        background: var(--sidebar-bg);
+        border-right: 1px solid #e2e8f0;
+        padding: 32px 24px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+        z-index: 10;
+        height: 100vh;
+        overflow-y: auto;
     }
 
-    .button span {
-        cursor: pointer;
-        display: inline-block;
-        position: relative;
-        transition: 0.5s;
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 40px;
+        gap: 32px;
+        height: 100vh;
+        overflow-y: auto;
+        align-items: center;
+        background: radial-gradient(circle at 50% 50%, #f1f5f9 0%, #f8fafc 100%);
     }
 
-    .button span:after {
-        content: '\00bb';
-        position: absolute;
-        opacity: 0;
-        top: 0;
-        right: -20px;
-        transition: 0.5s;
-    }
-
-    .button:hover span {
-        padding-right: 25px;
-    }
-
-    .button:hover span:after {
-        opacity: 1;
-        right: 0;
-    }
-
-    #franjaSup {
-        background-color: white;
-        position: absolute;
-        top: 0;
-        left: 0;
-        box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        z-index: -1;
+    .canvas-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
     }
 
     #my_canvas {
-        width: 900px;
-        height: 500px;
-        background-color: #000;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        margin-bottom: 20px;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .editor-section {
+        display: flex;
+        gap: 40px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     #myCanvas {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid #e2e8f0;
         cursor: crosshair;
-        background-color: white;
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+    }
+
+    .controls-card {
+        background: white;
+        padding: 24px;
+        border-radius: var(--radius);
+        border: 1px solid #e2e8f0;
+        box-shadow: var(--shadow);
+        min-width: 300px;
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px 20px;
         border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    h1 {
-        position: relative;
-        top: -10px;
-        z-index: 1;
-    }
-
-    h2 {
-        position: relative;
-        top: -25px;
-        z-index: 1;
-    }
-
-    #slider {
-        position: relative;
-        left: 480px;
-        top: -135px;
-        z-index: 1;
-
-    }
-
-    h3 {
-        position: relative;
-        left: -80px;
-        top: -65px;
-    }
-
-    .alert {
-        padding: 20px;
-        background-color: #63a1aa;
-        color: floralwhite;
-        font-weight: bold;
-        font-family: "Lato", sans-serif;
-        margin-bottom: 15px;
-    }
-
-    .closebtn {
-        margin-left: 15px;
-        color: white;
-        font-weight: bold;
-        float: right;
-        font-size: 22px;
-        line-height: 20px;
+        border: none;
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 12px;
     }
 
-    .closebtn:hover {
-        color: black;
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #528991; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 161, 170, 0.3); }
+
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-danger:hover { background: #fecaca; color: #7f1d1d; }
+
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+        display: block;
     }
 
-    .controles {
-        padding: 2px;
-        margin-bottom: 1px;
-        margin-top: 1px;
-        margin-left: 30px;
+    input[type="range"] {
+        width: 100%;
+        accent-color: var(--primary);
+        margin-top: 8px;
     }
 
-    .izquierda {
-        float: left;
-        width: 300px;
-        margin-left: 30px;
-    }
-
-    .derecha {
-        float: left;
-        width: 500px;
-    }
+    h1 { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0 0 4px 0; }
+    h2 { font-size: 14px; font-weight: 400; color: var(--text-muted); margin: 0 0 32px 0; }
 </style>
-
 <script src="jquery-2.1.4.min.js"></script>
 
-<body id="my_body" onload="Load();"
-    style="background-color:#f0f2f5; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif;">
+<body id="my_body" onload="Load();">
 
-    <div style="display: flex; height: 100vh;">
+    <div style="display: flex; height: 100vh; width: 100vw;">
         <!-- Sidebar -->
-        <div
-            style="width: 300px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.05);">
-            <h1 style="font-size: 24px; color: #333; margin-bottom: 5px;">Road Generator</h1>
-            <h2 style="font-size: 14px; color: #777; margin-bottom: 30px; font-weight: normal;">Marcos Schapira</h2>
+        <aside class="sidebar">
+            <h1>Road Generator</h1>
+            <h2>By Marcos Schapira</h2>
 
-            <div style="margin-bottom: 30px;">
-                <p
-                    style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
-                    Road Tools</p>
-                <button class="button"
-                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #63a1aa; color: white;"
-                    onclick="AddLine();"><span>Add Line</span></button>
-                <button class="button"
-                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #e74c3c; color: white;"
-                    onclick="DeleteLine();"><span>Delete Line</span></button>
-                <button class="button" style="width: 100%; top: 0; left: 0; margin: 0; background: #555; color: white;"
-                    onclick="Load();"><span>Refresh Preview</span></button>
+            <div style="margin-bottom: 32px;">
+                <span class="section-label">Road Tools</span>
+                <button class="btn btn-primary" onclick="AddLine();">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Add Line
+                </button>
+                <button class="btn btn-danger" onclick="DeleteLine();">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Delete Line
+                </button>
+                <button class="btn btn-secondary" onclick="Load();">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    Refresh Preview
+                </button>
             </div>
 
-            <div style="margin-bottom: 30px;">
-                <p
-                    style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
-                    Templates</p>
-                <button class="button"
-                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #eee; color: #333; font-size: 16px;"
-                    onclick="loadSimpang3();"><span>Simpang 3</span></button>
-                <button class="button"
-                    style="width: 100%; top: 0; left: 0; margin: 0 0 10px 0; background: #eee; color: #333; font-size: 16px;"
-                    onclick="loadSimpang4();"><span>Simpang 4</span></button>
-                <button class="button"
-                    style="width: 100%; top: 0; left: 0; margin: 0; background: #eee; color: #333; font-size: 16px;"
-                    onclick="loadSimpang5();"><span>Simpang 5</span></button>
+            <div style="margin-bottom: 32px;">
+                <span class="section-label">Intersections</span>
+                <button class="btn btn-secondary" onclick="loadSimpang3();">Simpang 3</button>
+                <button class="btn btn-secondary" onclick="loadSimpang4();">Simpang 4</button>
+                <button class="btn btn-secondary" onclick="loadSimpang5();">Simpang 5</button>
             </div>
 
-            <div style="margin-top: auto;">
-                <p
-                    style="font-weight: bold; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
-                    Car Speed</p>
-                <input type="range" name="points" id="points" value="10" min="0" max="10" style="width: 100%;">
+            <div style="margin-top: auto; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <span class="section-label">Simulation Speed</span>
+                <input type="range" name="points" id="points" value="10" min="0" max="10">
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: #94a3b8; font-weight: 600;">
+                    <span>SLOW</span>
+                    <span>FAST</span>
+                </div>
             </div>
-        </div>
+        </aside>
 
         <!-- Main Workspace -->
-        <div
-            style="flex: 1; padding: 30px; display: flex; flex-direction: column; align-items: center; overflow-y: auto;">
-            <canvas id="my_canvas" width="900" height="500"></canvas>
+        <main class="main-content">
+            <div class="canvas-container">
+                <div class="section-label" style="align-self: flex-start; margin-left: 4px;">3D Preview</div>
+                <canvas id="my_canvas" width="900" height="500"></canvas>
+            </div>
 
-            <div style="display: flex; gap: 30px; align-items: flex-start;">
-                <canvas id="myCanvas" width="300" height="300"></canvas>
+            <div class="editor-section">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <span class="section-label">2D Editor</span>
+                    <canvas id="myCanvas" width="300" height="300"></canvas>
+                </div>
 
-                <div
-                    style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; width: 400px;">
-                    <p style="font-weight: bold; margin-bottom: 10px; color: #333;">Controls Guide</p>
-                    <div style="font-size: 13px; color: #666; line-height: 1.6;">
-                        <p><b>Cameras:</b> 1 (Street) | 2 (Orbital) | 3 (Highway)</p>
-                        <p><b>Movement:</b> W A S D / Zoom: + -</p>
-                        <p><b>Elevation:</b> Q E</p>
-                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
-                        <p><b>2D Editor:</b> Drag the orange circles to reshape roads. The blue line shows the actual
-                            path.</p>
+                <div class="controls-card">
+                    <span class="section-label">Controls Guide</span>
+                    <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; line-height: 1.6;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <kbd style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: inherit; font-weight: 600;">Click + Drag</kbd>
+                            <span style="color: #64748b;">Move road points</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <kbd style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: inherit; font-weight: 600;">Scroll</kbd>
+                            <span style="color: #64748b;">Zoom In/Out</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <kbd style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: inherit; font-weight: 600;">Ctrl + Scroll</kbd>
+                            <span style="color: #64748b;">Precise Zoom</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <kbd style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: inherit; font-weight: 600;">+/- Keys</kbd>
+                            <span style="color: #64748b;">Keyboard Zoom</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2424,8 +2426,9 @@
         function loadSimpang3() {
             currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
-                [[-25, 150], [50, 150], [100, 150], [150, 150], [200, 150], [275, 150], [325, 150]], /* Horizontal Center */
-                [[150, 325], [150, 275], [150, 225], [150, 150], [150, 150], [150, 150], [150, 150]]  /* Vertical Bottom */
+                /* Left Arm */ [[-25, 150], [10, 150], [45, 150], [80, 150], [115, 150], [150, 150], [150, 150]],
+                /* Right Arm */ [[325, 150], [290, 150], [255, 150], [220, 150], [185, 150], [150, 150], [150, 150]],
+                /* Bottom Arm */ [[150, 325], [150, 290], [150, 255], [150, 220], [150, 185], [150, 150], [150, 150]]
             ];
             activeLineIndex = 0;
             puntosDeControl = todasLasRutas[activeLineIndex];
@@ -2436,8 +2439,10 @@
         function loadSimpang4() {
             currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
-                [[-25, 150], [50, 150], [100, 150], [150, 150], [200, 150], [275, 150], [325, 150]], /* Horizontal Center */
-                [[150, -25], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 325]]   /* Vertical Full */
+                /* Left Arm */ [[-25, 150], [10, 150], [45, 150], [80, 150], [115, 150], [150, 150], [150, 150]],
+                /* Right Arm */ [[325, 150], [290, 150], [255, 150], [220, 150], [185, 150], [150, 150], [150, 150]],
+                /* Top Arm */ [[150, -25], [150, 10], [150, 45], [150, 80], [150, 115], [150, 150], [150, 150]],
+                /* Bottom Arm */ [[150, 325], [150, 290], [150, 255], [150, 220], [150, 185], [150, 150], [150, 150]]
             ];
             activeLineIndex = 0;
             puntosDeControl = todasLasRutas[activeLineIndex];
@@ -2448,9 +2453,11 @@
         function loadSimpang5() {
             currentRutaTexture = "textures/ruta.jpg";
             todasLasRutas = [
-                [[-25, 150], [50, 150], [100, 150], [150, 150], [200, 150], [275, 150], [325, 150]], /* Horizontal Center */
-                [[150, -25], [150, 50], [150, 100], [150, 150], [150, 200], [150, 250], [150, 325]],  /* Vertical Full */
-                [[-25, 325], [25, 275], [75, 225], [150, 150], [150, 150], [150, 150], [150, 150]]   /* Diagonal Down-Left */
+                /* Left Arm */ [[-25, 150], [10, 150], [45, 150], [80, 150], [115, 150], [150, 150], [150, 150]],
+                /* Right Arm */ [[325, 150], [290, 150], [255, 150], [220, 150], [185, 150], [150, 150], [150, 150]],
+                /* Top Arm */ [[150, -25], [150, 10], [150, 45], [150, 80], [150, 115], [150, 150], [150, 150]],
+                /* Bottom Arm */ [[150, 325], [150, 290], [150, 255], [150, 220], [150, 185], [150, 150], [150, 150]],
+                /* Diagonal */ [[-25, 325], [10, 290], [45, 255], [80, 220], [115, 185], [150, 150], [150, 150]]
             ];
             activeLineIndex = 0;
             puntosDeControl = todasLasRutas[activeLineIndex];
@@ -2636,10 +2643,20 @@
             var lastMouseX = 0;
             var lastMouseY = 0;
 
+            function getEventCoord(e) {
+                var rect = c.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                return {
+                    x: (x / rect.width) * 300,
+                    y: (y / rect.height) * 300
+                };
+            }
+
             function updateCoordinates(e) {
-                var pos = $(c).offset();
-                var mouseX = e.pageX - pos.left;
-                var mouseY = e.pageY - pos.top;
+                var coords = getEventCoord(e);
+                var mouseX = coords.x;
+                var mouseY = coords.y;
                 
                 // Helper to check if a point is at the intersection center
                 var isPinned = (x, y) => Math.abs(x - 150) < 2 && Math.abs(y - 150) < 2;
@@ -2683,9 +2700,9 @@
             });
 
             $(c).bind('mousedown', function (e) {
-                var pos = $(c).offset();
-                var mouseX = e.pageX - pos.left;
-                var mouseY = e.pageY - pos.top;
+                var coords = getEventCoord(e);
+                var mouseX = coords.x;
+                var mouseY = coords.y;
                 p0 = p2 = p3 = p4 = p6 = false;
                 var found = false;
                 for (var i = todasLasRutas.length - 1; i >= 0; i--) {
@@ -2791,6 +2808,26 @@
             });
             angles.sort((a, b) => a.angle - b.angle);
 
+            // Helper to get coordinates correctly even on a scaled/responsive canvas
+            function getEventCoord(e) {
+                var rect = e.target.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+
+                // Map CSS pixels to internal coordinate system (300x300)
+                return {
+                    x: (x / rect.width) * 300,
+                    y: (y / rect.height) * 300
+                };
+            }
+
+            // Mouse interaction for dragging points
+            function onMouseDown(e) {
+                var coords = getEventCoord(e);
+                var x = coords.x;
+                var y = coords.y;
+            }
+
             var shape = new THREE.Shape();
             var roadHalfWidth = roadWidth / 2;
             var corners = [];
@@ -2800,8 +2837,10 @@
                 var next = angles[(i + 1) % angles.length];
                 var normalCurr = new THREE.Vector2(-curr.tangent.y, curr.tangent.x).multiplyScalar(roadHalfWidth);
                 var normalNext = new THREE.Vector2(-next.tangent.y, next.tangent.x).multiplyScalar(-roadHalfWidth);
-                var p1 = node.position.clone().add(curr.tangent.clone().multiplyScalar(8)).add(normalCurr);
-                var p2 = node.position.clone().add(next.tangent.clone().multiplyScalar(8)).add(normalNext);
+                // Use roadWidth = 33.6 for internal math (matches FigurasPrimitivas)
+                // Use clipping scalar 20.0 (matches generateClippedPoints)
+                var p1 = node.position.clone().add(curr.tangent.clone().multiplyScalar(20)).add(normalCurr);
+                var p2 = node.position.clone().add(next.tangent.clone().multiplyScalar(20)).add(normalNext);
                 corners.push(p1); corners.push(p2);
             }
 
@@ -2818,9 +2857,10 @@
         }
 
         function generateIntersectionMesh(node, escena) {
-            var shape = createIntersectionShape(node);
+            var shape = createIntersectionShape(node, 33.6); // Match FigurasPrimitivas width
             if (!shape) return;
-            var geometry = new THREE.ShapeGeometry(shape);
+            var extrudeSettings = { depth: 2.0, bevelEnabled: false };
+            var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
             var factory = new ObjetosFactory();
             var mesh = factory.createIntersectionFromThree(geometry);
             escena.add(mesh);

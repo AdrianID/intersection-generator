@@ -294,6 +294,7 @@ class ObjetosFactory {
 
         // Extract data from Three.js BufferGeometry
         var positions = geometry.attributes.position.array;
+        var normals = geometry.attributes.normal.array;
         var indices = geometry.index ? geometry.index.array : null;
 
         // If no indices, create them for triangles
@@ -307,43 +308,59 @@ class ObjetosFactory {
         var buffcalc = new BufferCalculator(0, 0);
         buffcalc.posBuffer = [];
         buffcalc.textureBuffer1 = [];
+        buffcalc.normalBuffer = [];
         
         // Find bounding box for UV mapping (centered at 140 offset, size ~30-40)
-        // We use roughly the 140 coordinate as center
         var uvMin = 140 - 20; 
         var uvMax = 140 + 20;
         var uvSize = uvMax - uvMin;
 
-        // Map to project coordinate system: X is height/offset, Y and Z are the plan plane
+        // THREE.ExtrudeGeometry maps:
+        // Three X, Y -> Horizontal Plane (Project Y, Z)
+        // Three Z -> Depth/Height (Project X)
         for (var i = 0; i < positions.length; i += 3) {
-            var py = positions[i];
-            var pz = positions[i + 1];
+            var tx = positions[i];     // Three X
+            var ty = positions[i + 1]; // Three Y
+            var tz = positions[i + 2]; // Three Z (Height)
             
-            buffcalc.posBuffer.push(0.02);         // X (Height/Offset)
-            buffcalc.posBuffer.push(py);           // Y (Plan X)
-            buffcalc.posBuffer.push(pz);           // Z (Plan Y)
+            var nx = normals[i];
+            var ny = normals[i + 1];
+            var nz = normals[i + 2];
+            
+            // Map to Project Coordinates: X=Up, Y=PlanX, Z=PlanY
+            buffcalc.posBuffer.push(tz + 0.02);    // X (Height) - offset slightly 
+            buffcalc.posBuffer.push(tx);           // Y (Plan X)
+            buffcalc.posBuffer.push(ty);           // Z (Plan Y)
 
-            // UV mapping centered on our junction
-            // cruce.jpg is a square texture with zebra crossings on the edges
-            var u = (py - uvMin) / uvSize;
-            var v = (pz - uvMin) / uvSize;
-            buffcalc.textureBuffer1.push(u);
-            buffcalc.textureBuffer1.push(v);
+            // Map Normals
+            buffcalc.normalBuffer.push(nz);        // Proj X Normal 
+            buffcalc.normalBuffer.push(nx);        // Proj Y Normal
+            buffcalc.normalBuffer.push(ny);        // Proj Z Normal
+
+            // UV mapping for top surface (where three Z is close to depth=2.0)
+            if (tz > 1.9) {
+                var u = (tx - uvMin) / uvSize;
+                var v = (ty - uvMin) / uvSize;
+                buffcalc.textureBuffer1.push(u);
+                buffcalc.textureBuffer1.push(v);
+            } else {
+                // Side or bottom - use a corner of the texture or dark spot
+                buffcalc.textureBuffer1.push(0.05); 
+                buffcalc.textureBuffer1.push(0.05);
+            }
         }
         buffcalc.indexBuffer = Array.from(indices);
         buffcalc.setTextures(1);
 
-        var normals = [];
         var tangents = [];
         for (var i = 0; i < buffcalc.posBuffer.length; i += 3) {
-            normals.push(1); normals.push(0); normals.push(0); // X is Up
-            tangents.push(0); tangents.push(1); tangents.push(0); // Y is Tangent
+            tangents.push(0); tangents.push(1); tangents.push(0); // Simple Y Tangent
         }
-        buffcalc.normalBuffer = normals;
         buffcalc.tangentBuffer = tangents;
 
         intersection.setBufferCreator(buffcalc);
         intersection.build();
+        intersection.scale(0.32, 0.32, 0.32); // Match createRuta scaling
         intersection.setType("esquina", 1.0);
         intersection.useTangent = true;
 
