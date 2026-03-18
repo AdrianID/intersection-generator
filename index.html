@@ -2222,7 +2222,7 @@
         width: 320px;
         background: var(--sidebar-bg);
         border-right: 1px solid #e2e8f0;
-        padding: 32px 24px;
+        padding: 32px 24px 100px 24px; /* Increased bottom padding */
         display: flex;
         flex-direction: column;
         box-shadow: 4px 0 24px rgba(0,0,0,0.02);
@@ -2235,7 +2235,7 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: 40px;
+        padding: 40px 40px 120px 40px; /* Increased bottom padding */
         gap: 32px;
         height: 100vh;
         overflow-y: auto;
@@ -2369,7 +2369,7 @@
                 <button class="btn btn-secondary" onclick="loadSimpang5();">Simpang 5</button>
             </div>
 
-            <div style="margin-top: auto; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="margin-top: auto; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
                 <span class="section-label">Simulation Speed</span>
                 <input type="range" name="points" id="points" value="10" min="0" max="10">
                 <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: #94a3b8; font-weight: 600;">
@@ -2377,6 +2377,8 @@
                     <span>FAST</span>
                 </div>
             </div>
+            <!-- Sidebar Bottom Spacer -->
+            <div style="height: 40px; flex-shrink: 0;"></div>
         </aside>
 
         <!-- Main Workspace -->
@@ -2414,7 +2416,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+            <!-- Footer Spacer for scrolling clearance -->
+            <div style="height: 100px; width: 100%; flex-shrink: 0;"></div>
+        </main>
     </div>
 
     <!-- Hidden legacy elements for compatibility -->
